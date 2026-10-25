@@ -1,6 +1,7 @@
 /.phpunit.cache
 /.phpunit.result.cache
 /node_modules
+/database/*.sqlite
 /public/build
 /public/hot
 /public/storage
