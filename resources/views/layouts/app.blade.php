@@ -47,8 +47,5 @@
         @yield('content')
     </main>
 
-    <footer class="site-footer">
-        <div class="container">Proyecto Horario · Administración de aulas y edificios</div>
-    </footer>
 </body>
 </html>
