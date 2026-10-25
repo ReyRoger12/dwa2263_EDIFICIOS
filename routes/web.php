@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AulaController;
+use App\Http\Controllers\EdificioWebController;
 use App\Http\Controllers\MesaController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +18,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AulaController::class, 'index'])->name('inicio');
 Route::resource('aulas', AulaController::class)->except('show');
+Route::name('panel.')->group(function () {
+    Route::resource('edificios', EdificioWebController::class)->except('show');
+});
 
 Route::resource('mesas', MesaController::class);

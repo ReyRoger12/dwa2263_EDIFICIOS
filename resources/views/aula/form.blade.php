@@ -59,7 +59,8 @@
 
 @if ($edificios->isEmpty())
     <div class="notice compact">
-        Registra al menos un edificio desde <code>POST /api/edificios</code> antes de guardar el aula.
+        <strong>Falta registrar un edificio.</strong>
+        <a href="{{ route('panel.edificios.create') }}">Ir al formulario de edificios</a>
     </div>
 @endif
 

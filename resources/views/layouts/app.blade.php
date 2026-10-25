@@ -19,7 +19,7 @@
 
             <nav class="main-nav" aria-label="Navegación principal">
                 <a href="{{ route('inicio') }}">Aulas</a>
-                <a href="{{ url('/api/edificios') }}">API de edificios</a>
+                <a href="{{ route('panel.edificios.index') }}">Edificios</a>
             </nav>
         </div>
     </header>

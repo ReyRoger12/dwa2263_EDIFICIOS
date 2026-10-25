@@ -224,6 +224,10 @@ a {
     display: block;
 }
 
+.notice .button {
+    margin-top: 12px;
+}
+
 .notice.compact {
     margin-top: 20px;
     margin-bottom: 0;
@@ -397,6 +401,15 @@ tbody tr:hover {
     color: var(--muted);
 }
 
+.building-card a {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+
 .form-page {
     width: min(720px, 100%);
     margin: 0 auto;
@@ -523,10 +536,6 @@ select:focus {
     .nav-wrap,
     .hero {
         align-items: flex-start;
-    }
-
-    .main-nav a:first-child {
-        display: none;
     }
 
     .page-content {

@@ -15,7 +15,8 @@
     @if ($edificios->isEmpty())
         <div class="notice">
             <strong>Primero registra un edificio.</strong>
-            Usa <code>POST /api/edificios</code> desde Postman para poder agregar aulas.
+            <span>Necesitas al menos uno antes de agregar aulas.</span>
+            <a class="button button-primary" href="{{ route('panel.edificios.create') }}">Registrar edificio</a>
         </div>
     @endif
 
@@ -102,6 +103,7 @@
                         <span>Edificio</span>
                         <strong>{{ $edificio->nombre }}</strong>
                         <small>{{ $edificio->aulas_count }} {{ $edificio->aulas_count === 1 ? 'aula' : 'aulas' }}</small>
+                        <a href="{{ route('panel.edificios.edit', $edificio) }}">Administrar</a>
                     </article>
                 @endforeach
             </div>
