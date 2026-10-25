@@ -3,101 +3,105 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aula;
+use App\Models\Edificio;
 use Illuminate\Http\Request;
 
 class AulaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $aulas = Aula::all();
+        $aulas = Aula::with('edificio')->orderBy('nombre')->get();
+        $edificios = Edificio::withCount('aulas')->orderBy('nombre')->get();
 
-
-        return view('aula.listado', compact('aulas'));
-        return "muestra todas las aulas";
+        return view('aula.listado', compact('aulas', 'edificios'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
+        $edificios = Edificio::orderBy('nombre')->get();
 
-//       return "que me muestre un formulario";
-        return view("aula.agregar");
+        return view('aula.agregar', compact('edificios'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        echo "guardo en la base de datos";        
-//        dump($request->all());
+        $datos = $this->validateAula($request);
+        $datos['wifi'] = $request->boolean('wifi');
 
-        $aula = new Aula();
-        $aula->nombre =  $request->input('nombre');
-        $aula->capacidad =  $request->input('capacidad');
-        if($request->input('wifi',"NO")=="ON"){
-            $aula->wifi = true;
-        }else{
-            $aula->wifi = false;
+        Aula::create($datos);
+
+        return redirect()
+            ->route('aulas.index')
+            ->with('success', 'Aula agregada correctamente.');
+    }
+
+    public function edit(int $id)
+    {
+        $aula = Aula::find($id);
+
+        if (! $aula) {
+            return redirect()
+                ->route('aulas.index')
+                ->with('error', 'El aula solicitada ya no existe.');
         }
-        $aula->save();
-        return redirect(route('aulas.listar'));
 
+        $edificios = Edificio::orderBy('nombre')->get();
+
+        return view('aula.modificar', compact('aula', 'edificios'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($x)
+    public function update(Request $request, int $id)
     {
-        return "mostrare la aula $x";
-    }
+        $aula = Aula::find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($cual)
-    {
-        $aula = Aula::find($cual);
-//        echo "cual modificar";
-        return view("aula.modificar",compact('aula'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $x) //Aula $aula
-    {
-//        dump($x);
-//        dump($request->all());
-        //ANTERIOR = NUEVO
-        $anterior = Aula::find($x);
-        $anterior->nombre = $request->input('nombre');
-        $anterior->capacidad =  $request->input('capacidad');
-        if($request->input('wifi',"NO")=="ON"){
-            $anterior->wifi = true;
-        }else{
-            $anterior->wifi = false;
+        if (! $aula) {
+            return redirect()
+                ->route('aulas.index')
+                ->with('error', 'El aula que intentas actualizar ya no existe.');
         }
-        $anterior->save();
-        echo "actualiza el aula";
-        return redirect(route('aulas.listar'));
 
+        $datos = $this->validateAula($request);
+        $datos['wifi'] = $request->boolean('wifi');
+        $aula->update($datos);
+
+        return redirect()
+            ->route('aulas.index')
+            ->with('success', 'Aula actualizada correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($x)
+    public function destroy(int $id)
     {
-        echo "Borrar el aula $x";
-        $anterior = Aula::find($x);
-        $anterior->delete();
-        return redirect(route('aulas.listar'));
+        $aula = Aula::find($id);
+
+        if (! $aula) {
+            return redirect()
+                ->route('aulas.index')
+                ->with('error', 'El aula ya había sido eliminada.');
+        }
+
+        $nombre = $aula->nombre;
+        $aula->delete();
+
+        return redirect()
+            ->route('aulas.index')
+            ->with('success', "El aula {$nombre} fue eliminada.");
+    }
+
+    private function validateAula(Request $request): array
+    {
+        return $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'capacidad' => ['required', 'integer', 'min:1', 'max:500'],
+            'wifi' => ['nullable', 'boolean'],
+            'edificio_id' => ['required', 'exists:edificios,id'],
+        ], [
+            'nombre.required' => 'Escribe el nombre del aula.',
+            'capacidad.required' => 'Indica la capacidad del aula.',
+            'capacidad.integer' => 'La capacidad debe ser un número entero.',
+            'capacidad.min' => 'La capacidad debe ser mayor a cero.',
+            'capacidad.max' => 'La capacidad no puede ser mayor a 500.',
+            'edificio_id.required' => 'Selecciona un edificio.',
+            'edificio_id.exists' => 'El edificio seleccionado ya no existe.',
+        ]);
     }
 }

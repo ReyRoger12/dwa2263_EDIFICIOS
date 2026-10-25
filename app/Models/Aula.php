@@ -9,7 +9,12 @@ class Aula extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'edificio_id'];
+    protected $fillable = ['nombre', 'capacidad', 'wifi', 'edificio_id'];
+
+    protected $casts = [
+        'capacidad' => 'integer',
+        'wifi' => 'boolean',
+    ];
 
     // Relación: Un aula pertenece a un edificio
     public function edificio()
