@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->integer('capacidad');
             $table->boolean('wifi');
+            $table->foreignId('edificio_id')
+                ->constrained('edificios')
+                ->cascadeOnDelete();
             $table->timestamps();
         });
     }
