@@ -1,48 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Document</title>
-</head>
-<body>
- MOSTRAR TODAS LAS AULAS
-<table border = "1">
- <thead>
-  <th>id</th>
-  <th>nombre</th>
-  <th>acciones</th>
- </thead>
- <tbody>
+@extends('layouts.app')
 
-@forelse($aulas as $aula )
- <tr>
-   <td>{{$aula->id}}</td>
-   <td>{{$aula->nombre}}</td>
-  <td> 
-    <a href="{{route('aulas.actualizar',  $aula->id )}}">ACTUALIZAR</a>
-           - 
-    <form action="{{route('aulas.borrar',  $aula->id )}}" method="post">
-     <input type="submit" value="BORRAR">
-     @csrf
-     @method('DELETE')
-    </form>
-           
-   </td>
- </tr> 
-@empty
- <tr>
-<td colspan="3">VACIO</td>
- </tr> 
+@section('title', 'Aulas')
 
+@section('content')
+    <section class="hero">
+        <div>
+            <span class="eyebrow">Administración del campus</span>
+            <h1>Aulas registradas</h1>
+            <p>Consulta la capacidad, disponibilidad de wifi y edificio de cada aula.</p>
+        </div>
+        <a class="button button-primary" href="{{ route('aulas.create') }}">Agregar aula</a>
+    </section>
 
-@endforelse
- </tbody>
-</table>
+    @if ($edificios->isEmpty())
+        <div class="notice">
+            <strong>Primero registra un edificio.</strong>
+            Usa <code>POST /api/edificios</code> desde Postman para poder agregar aulas.
+        </div>
+    @endif
 
-<HR>
-<a href="preagregar">AGREGAR</a>
+    <section class="stats" aria-label="Resumen">
+        <article class="stat-card">
+            <span>Total de aulas</span>
+            <strong>{{ $aulas->count() }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Edificios</span>
+            <strong>{{ $edificios->count() }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Aulas con wifi</span>
+            <strong>{{ $aulas->where('wifi', true)->count() }}</strong>
+        </article>
+    </section>
 
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Directorio de aulas</h2>
+                <p>Información general de los espacios disponibles.</p>
+            </div>
+        </div>
 
-</body>
-</html>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Aula</th>
+                        <th>Edificio</th>
+                        <th>Capacidad</th>
+                        <th>Wifi</th>
+                        <th class="actions-heading">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($aulas as $aula)
+                        <tr>
+                            <td data-label="ID">#{{ $aula->id }}</td>
+                            <td data-label="Aula"><strong>{{ $aula->nombre }}</strong></td>
+                            <td data-label="Edificio">{{ $aula->edificio?->nombre ?? 'Sin edificio' }}</td>
+                            <td data-label="Capacidad">{{ $aula->capacidad }} personas</td>
+                            <td data-label="Wifi">
+                                <span class="badge {{ $aula->wifi ? 'badge-success' : 'badge-muted' }}">
+                                    {{ $aula->wifi ? 'Disponible' : 'No disponible' }}
+                                </span>
+                            </td>
+                            <td data-label="Acciones">
+                                <div class="table-actions">
+                                    <a class="button button-light" href="{{ route('aulas.edit', $aula) }}">Editar</a>
+                                    <form action="{{ route('aulas.destroy', $aula) }}" method="post" onsubmit="return confirm('¿Quieres eliminar el aula {{ $aula->nombre }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="button button-danger" type="submit">Eliminar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="empty-state" colspan="6">
+                                <strong>Aún no hay aulas registradas.</strong>
+                                <span>Agrega la primera para comenzar.</span>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    @if ($edificios->isNotEmpty())
+        <section class="building-section">
+            <div class="section-heading">
+                <h2>Edificios</h2>
+                <p>Resumen de aulas por edificio.</p>
+            </div>
+            <div class="building-grid">
+                @foreach ($edificios as $edificio)
+                    <article class="building-card">
+                        <span>Edificio</span>
+                        <strong>{{ $edificio->nombre }}</strong>
+                        <small>{{ $edificio->aulas_count }} {{ $edificio->aulas_count === 1 ? 'aula' : 'aulas' }}</small>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
+@endsection
